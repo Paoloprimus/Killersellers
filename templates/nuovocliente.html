@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Aggiungi Cliente</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">Aggiungi Nuovo Cliente</h1>
+        <form id="addCustomerForm" class="mt-3">
+            <div class="form-group">
+                <label for="name">Nome</label>
+                <input type="text" id="name" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="address">Indirizzo</label>
+                <input type="text" id="address" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="contact_info">Contatto</label>
+                <input type="text" id="contact_info" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="latitude">Latitudine</label>
+                <input type="number" step="any" id="latitude" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="longitude">Longitudine</label>
+                <input type="number" step="any" id="longitude" class="form-control" required>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="addCustomer()">Aggiungi Cliente</button>
+        </form>
+        <div id="response" class="mt-3"></div>
+        <div class="mt-3">
+            <a href="{{ url_for('home') }}" class="btn btn-secondary">Torna alla Home</a>
+            <a href="{{ url_for('listaclienti') }}" class="btn btn-secondary">Lista Clienti</a>
+            <a href="{{ url_for('modificacliente') }}" class="btn btn-secondary">Modifica Cliente</a>
+            <a href="{{ url_for('cancellacliente') }}" class="btn btn-secondary">Cancella Cliente</a>
+        </div>
+    </div>
+    <script>
+        function addCustomer() {
+            const name = document.getElementById('name').value;
+            const address = document.getElementById('address').value;
+            const contact_info = document.getElementById('contact_info').value;
+            const latitude = document.getElementById('latitude').value;
+            const longitude = document.getElementById('longitude').value;
+
+            fetch('http://127.0.0.1:5000/customers', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name, address, contact_info, latitude, longitude }),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('response').innerText = 'Cliente aggiunto con successo!';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('response').innerText = 'Errore nell\'aggiunta del cliente.';
+            });
+        }
+    </script>
+</body>
+</html>

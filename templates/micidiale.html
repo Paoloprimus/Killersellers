@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Micidiale</title>
+<!-- Carica jQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        color: #474747;
+    }
+    body {
+        font-family: Times New Roman, Arial;
+        color: #282520;
+        background-color: #fff;
+    }
+    #sidebar {
+        position: fixed;
+        top: 0;
+        left: -150px;
+        width: 150px;
+        height: 100%;
+        background: #367586;
+        overflow-x: hidden;
+        overflow-y: auto;
+        transition: 0.5s;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    #sidebar.active {
+        left: 0;
+    }
+    .sidebar-item {
+        padding: 16px;
+        color: white;
+        background: #367586;
+        text-align: center;
+        text-decoration: none;
+        display: block;
+    }
+    #main-content {
+        transition: margin-left 0.5s;
+    }
+    .openbtn {
+        position: fixed;
+        top: 50%;
+        left: 0;
+        font-size: 24px;
+        cursor: pointer;
+        background-color: #FAF9F1;
+        color: #000;
+        padding: 5px 10px;
+        border: none;
+        z-index: 3;
+        transition: left 0.5s;
+    }
+    .openbtn:hover {
+        background-color: #DDD;
+    }
+    .content {
+        margin: 0 auto;
+        padding: 20px;
+        transition: padding 0.5s;
+    }
+    #page-content {
+        padding: 0;
+        margin: 0;
+    }
+    h1, p {
+        text-align: center;
+    }
+    #right-sidebar {
+        position: fixed;
+        top: 0;
+        right: -150px;
+        width: 150px;
+        height: 100%;
+        background: #367586;
+        overflow-x: hidden;
+        overflow-y: auto;
+        transition: 0.5s;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    #right-sidebar.active {
+        right: 0;
+    }
+    .right-openbtn {
+        position: fixed;
+        top: 50%;
+        right: 0;
+        font-size: 24px;
+        cursor: pointer;
+        background-color: #FAF9F1;
+        color: #000;
+        padding: 5px 10px;
+        border: none;
+        z-index: 3;
+        transition: right 0.5s;
+    }
+    .right-openbtn:hover {
+        background-color: #DDD;
+    }
+</style>
+</head>
+<body>
+    <button class="openbtn">}</button>
+    <button class="right-openbtn">{</button>
+
+    <div id="sidebar">
+        <a href="#" class="sidebar-item" data-page="default">Home</a>
+        <a href="#" class="sidebar-item" data-page="gestioneclienti">Gestione Clienti</a>
+        <a href="#" class="sidebar-item" data-page="gestioneordini">Gestione Ordini</a>
+        <a href="#" class="sidebar-item" data-page="dativendite">Dati Vendite</a>
+        <a href="#" class="sidebar-item" data-page="note">Note</a>
+        <a href="#" class="sidebar-item" data-page="obbiettivi">Obbiettivi</a>
+        <a href="#" class="sidebar-item" data-page="chat">Chat</a>
+    </div>
+    <div id="right-sidebar">
+        <a href="#" class="sidebar-item" data-page="default">Home</a><br>
+        <a href="#" class="sidebar-item" data-page="agenda">Agenda</a>
+        <a href="#" class="sidebar-item" data-page="reportclienti">Report Clienti</a>
+        <a href="#" class="sidebar-item" data-page="reportordini">Report Ordini</a>
+        <a href="#" class="sidebar-item" data-page="reportvendite">Report Vendite</a>
+        <a href="#" class="sidebar-item" data-page="reportnote">Report Note</a>
+        <a href="#" class="sidebar-item" data-page="impostazioni">Impostazioni</a>
+    </div>
+    <div id="main-content">
+        <div class="content">
+            <div id="page-content">
+                <div class="text-container">
+                    <h1>Vincenzo Boccuni</h1>
+                    <p>Agente Micidiale</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+$(document).ready(function() {
+    // Controlla se jQuery è caricato correttamente
+    if (typeof $ === 'undefined') {
+        console.error('jQuery non è caricato correttamente');
+        return;
+    } else {
+        console.log('jQuery è caricato correttamente');
+    }
+
+    function toggleSidebar() {
+        var sidebar = $("#sidebar");
+        var openBtn = $(".openbtn");
+        var isOpen = sidebar.hasClass("active");
+        sidebar.toggleClass("active");
+        openBtn.css('left', isOpen ? '0' : '250px');
+    }
+
+    function toggleRightSidebar() {
+        var rightSidebar = $("#right-sidebar");
+        var rightOpenBtn = $(".right-openbtn");
+        var isOpen = rightSidebar.hasClass("active");
+        rightSidebar.toggleClass("active");
+        rightOpenBtn.css('right', isOpen ? '0' : '250px');
+    }
+
+    $(".openbtn").click(toggleSidebar);
+    $(".right-openbtn").click(toggleRightSidebar);
+
+    function loadPage(page) {
+        console.log("Loading page:", page); // Debug
+        var content = $('#page-content');
+        if (page === 'default') {
+            content.html('<div class="text-container"><h1>Vincenzo Boccuni</h1><p>Agente Micidiale</p></div>');
+        } else if (page === 'gestioneclienti') {
+            $.get('/gestioneclienti', function(data) {
+                content.html(data);
+            }).fail(function() {
+                content.html('<p>Errore nel caricamento dei dati di gestione clienti.</p>');
+            });
+        } else if (page === 'gestioneordini') {
+            $.get('/gestioneordini', function(data) {
+                content.html(data);
+            }).fail(function() {
+                content.html('<p>Errore nel caricamento dei dati di gestione ordini.</p>');
+            });
+        } else {
+            content.html('<p>Stai visualizzando il contenuto per ' + page + '.</p>');
+        }
+    }
+
+    $('.sidebar-item').click(function(e) {
+        e.preventDefault();
+        var page = $(this).data('page');
+        console.log("Page clicked:", page); // Debug: verifica il valore di 'page'
+        if (page) {
+            loadPage(page);
+            // Chiudi automaticamente la sidebar
+            if ($("#sidebar").hasClass("active")) {
+                toggleSidebar();
+            }
+            if ($("#right-sidebar").hasClass("active")) {
+                toggleRightSidebar();
+            }
+        } else {
+            console.error("Page data attribute is missing."); // Error handling
+        }
+    });
+
+    // Imposta AJAX per non usare la cache
+    $.ajaxSetup({
+        cache: false
+    });
+});
+</script>
+</body>
+</html>

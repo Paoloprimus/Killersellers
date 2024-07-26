@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista Clienti</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        .editable {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+        }
+        .readonly {
+            background-color: #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">Lista Clienti</h1>
+        <table class="table mt-3">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Indirizzo</th>
+                    <th>Contatto</th>
+                    <th>Latitudine</th>
+                    <th>Longitudine</th>
+                    <th>Azioni</th>
+                </tr>
+            </thead>
+            <tbody id="customersList">
+                <!-- I dati dei clienti verranno inseriti qui -->
+            </tbody>
+        </table>
+        <div class="mt-3">
+            <a href="{{ url_for('home') }}" class="btn btn-secondary">Torna alla Home</a>
+            <a href="{{ url_for('nuovocliente') }}" class="btn btn-success">Aggiungi Nuovo Cliente</a>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            loadCustomers();
+        });
+
+        function loadCustomers() {
+            fetch('http://127.0.0.1:5000/customers')
+                .then(response => response.json())
+                .then(data => {
+                    const customersContainer = document.getElementById('customersList');
+                    customersContainer.innerHTML = '';
+                    data.forEach(customer => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${customer.customer_id}</td>
+                            <td class="readonly">${customer.name}</td>
+                            <td class="readonly">${customer.address}</td>
+                            <td class="readonly">${customer.contact_info}</td>
+                            <td class="readonly">${customer.latitude}</td>
+                            <td class="readonly">${customer.longitude}</td>
+                            <td><button class="btn btn-warning btn-sm" onclick="editCustomer(this)">Modifica</button></td>
+                        `;
+                        customersContainer.appendChild(row);
+                    });
+                })
+                .catch(error => console.error('Errore nel caricamento dei clienti:', error));
+        }
+
+        function editCustomer(button) {
+            const row = button.closest('tr');
+            const cells = row.querySelectorAll('td');
+            if (button.innerText === 'Modifica') {
+                for (let i = 1; i <= 5; i++) {
+                    cells[i].contentEditable = true;
+                    cells[i].classList.add('editable');
+                    cells[i].classList.remove('readonly');
+                }
+                button.innerText = 'Salva';
+            } else {
+                const customer_id = cells[0].innerText;
+                const name = cells[1].innerText;
+                const address = cells[2].innerText;
+                const contact_info = cells[3].innerText;
+                const latitude = parseFloat(cells[4].innerText);
+                const longitude = parseFloat(cells[5].innerText);
+
+                if (isNaN(latitude) || isNaN(longitude)) {
+                    alert('Latitudine e longitudine devono essere numeri validi.');
+                    return;
+                }
+
+                const data = {
+                    name,
+                    address,
+                    contact_info,
+                    latitude,
+                    longitude
+                };
+
+                fetch(`http://127.0.0.1:5000/customers/${customer_id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    alert('Cliente modificato con successo!');
+                    for (let i = 1; i <= 5; i++) {
+                        cells[i].contentEditable = false;
+                        cells[i].classList.remove('editable');
+                        cells[i].classList.add('readonly');
+                    }
+                    button.innerText = 'Modifica';
+                })
+                .catch(error => {
+                    console.error('Errore nella modifica del cliente:', error);
+                    alert('Errore nella modifica del cliente.');
+                });
+            }
+        }
+    </script>
+</body>
+</html>
